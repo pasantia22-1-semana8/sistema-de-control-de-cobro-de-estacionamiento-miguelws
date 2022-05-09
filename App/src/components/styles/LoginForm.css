@@ -1,0 +1,13 @@
+#login{
+    color: #282c34;
+    /*color: white;*/    
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    font-size: 100%;
+}
+
+#tamano {
+    width: 100%;
+}
