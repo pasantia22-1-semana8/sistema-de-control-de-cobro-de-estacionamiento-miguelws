@@ -28,9 +28,9 @@ export default class Login extends React.Component {
           <div className="row">
             <div className="col-12">
               <LoginForm
-                userToken={this.props.userLogin}
+                getToken={this.props.getToken}
                 onChange={this.handleChange}
-                formValues={this.state.credentials}
+                myCredentials={this.state.credentials}
               />
             </div>
           </div>

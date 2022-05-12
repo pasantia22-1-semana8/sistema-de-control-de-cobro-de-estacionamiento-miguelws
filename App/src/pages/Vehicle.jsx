@@ -1,40 +1,42 @@
 import {React, Component} from "react";
 
 import './styles/Stay.css';
-import StaysList from '../components/stay/List';
+import VehiclesList from '../components/vehicle/List';
 import Layout from '../layouts/Layout';
 import Error from '../pages/Error';
 
-export default class Payment extends Component {
+export default class Vehicle extends Component {
   state = {
     loading: true,
     error: null,
     modalCreateIsOpen: false,
     modalDeleteIsOpen: false,
-    staysList: [],
-    selectedVehicle: [],
-    newStay: {
-      vehiculo: undefined
+    vehiclesList: [],
+    selectedFees: [],
+    newVehicle: {
+      placa: undefined,
+      tarifa: undefined,
+      descripcion: undefined
     }
   }
 
   componentDidMount() {
-    this.loadStays();
-    this.intervalId = setInterval(this.loadStays, 5000);
+    this.loadVehicles();
+    this.intervalId = setInterval(this.loadVehicles, 5000);
   }
 
   componentWillUnmount() {
     clearInterval(this.intervalId);
   }
 
-  loadStays = async e => {
+  loadVehicles = async e => {
     this.setState({
       loading: true,
       error: null
     });
 
     try {
-      await fetch('http://127.0.0.1:8000/api/v1/stays/list/', {
+      await fetch('http://127.0.0.1:8000/api/v1/vehicles/list/', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -44,7 +46,7 @@ export default class Payment extends Component {
       .then(data => data.json())
       .then(data => {
         this.setState({
-          staysList: data,
+          vehiclesList: data,
           loading: false
         });
       });
@@ -56,20 +58,20 @@ export default class Payment extends Component {
     }
   }
 
-  sendStay = async e => {
+  sendVehicle = async e => {
     this.setState({
       loading: true,
       error: null
     });
 
     try {
-      await fetch('http://127.0.0.1:8000/api/v1/stays/list/', {
+      await fetch('http://127.0.0.1:8000/api/v1/vehicles/list/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Token ${this.props.myToken}`
         },
-        body: JSON.stringify(this.state.newStay)
+        body: JSON.stringify(this.state.newVehicle)
       }).then(data => data.json());
 
       this.setState({ modalCreateIsOpen: false });
@@ -93,7 +95,7 @@ export default class Payment extends Component {
     });
 
     try {
-      await fetch('http://127.0.0.1:8000/api/v1/vehicles/list/', {
+      await fetch('http://127.0.0.1:8000/api/v1/vehicles/fees/', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -103,7 +105,7 @@ export default class Payment extends Component {
       .then(data => data.json())
       .then(data => {
         this.setState({
-          selectedVehicle: data,
+          selectedFees: data,
           loading: false
         });
       });
@@ -117,8 +119,12 @@ export default class Payment extends Component {
 
   handleChange = e => {
     this.setState({
-      newStay: { vehiculo: e.target.value }
+      newVehicle: {
+        ...this.state.newVehicle,
+        [e.target.name]: e.target.value
+      }
     });
+    console.log(this.state.newVehicle);
   }
 
   handleCloseModalDelete = e => {
@@ -130,7 +136,7 @@ export default class Payment extends Component {
   }
 
   render() {
-    if (this.state.loading === true && !this.state.staysList) {
+    if (this.state.loading === true && !this.state.vehiclesList) {
       return 'Loading...';
     }
     if (this.state.error) {
@@ -141,15 +147,15 @@ export default class Payment extends Component {
         <div className="Badges__container">
           <div className="Badges__list">
             <div className="Badges__container">
-              <StaysList
-                stays={this.state.staysList}
+              <VehiclesList
+                vehicles={this.state.vehiclesList}
 
                 onOpenModalCreate={this.handleOpenModalCreate}
                 onCloseModalCreate={this.handleCloseModalCreate}
                 modalCreateIsOpen={this.state.modalCreateIsOpen}
-                onSubmitPost={this.sendStay}
+                onSubmitPost={this.sendVehicle}
                 onChange={this.handleChange}
-                vehicles={this.state.selectedVehicle}
+                fees={this.state.selectedFees}
 
                 onOpenModalDelete={this.handleOpenModalDelete}
                 onCloseModalDelete={this.handleCloseModalDelete}

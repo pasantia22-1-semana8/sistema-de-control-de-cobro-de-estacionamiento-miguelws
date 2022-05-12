@@ -3,38 +3,38 @@ import { Link } from 'react-router-dom';
 import { useNavigate } from "react-router-dom";
 
 import '../styles/List.css';
-import CreateStay from './Create';
-import DeleteStay from './Delete';
+import CreatePayment from './Create';
+import DeletePayment from './Delete';
 
-function useSearchStays(stays) {
+function useSearchPayments(payments) {
   let navigate = useNavigate();
 
   const [query, setQuery] = React.useState('');
-  const [filteredStays, setfilteredStays] = React.useState(stays);
+  const [filteredPayments, setfilteredPayments] = React.useState(payments);
 
   React.useMemo(() => {
     try {
-      const result = stays.filter(stay => {
-        return `${stay.vehiculo}`.toLowerCase().includes(query.toLowerCase());
+      const result = payments.filter(payment => {
+        return `${payment.estancia}`.toLowerCase().includes(query.toLowerCase());
       })
-      setfilteredStays(result);
+      setfilteredPayments(result);
     } catch (error) {
       console.log(error);
       navigate('/')
     }
-  }, [stays, query]);
-  return {query, setQuery, filteredStays}
+  }, [payments, query]);
+  return {query, setQuery, filteredPayments}
 }
 
-export default function StaysList (props) {
-  const stays = props.stays;
-  const {query, setQuery, filteredStays} = useSearchStays(stays);
+export default function PaymentsList (props) {
+  const payments = props.payments;
+  const {query, setQuery, filteredPayments} = useSearchPayments(payments);
 
-  if (filteredStays.length === 0) {
+  if (filteredPayments.length === 0) {
     return (
       <div>
         <div className="form-grup">
-          <label>Filtrar Estancias</label>
+          <label>Filtrar Pagos</label>
           <input
             type="text"
             className="form-control"
@@ -44,9 +44,9 @@ export default function StaysList (props) {
             }}
           />
         </div>
-        <h3>No se encontraron las estancias</h3>
+        <h3>No se encontraron los pagos</h3>
         <Link className='btn btn-primary' to="">
-          Nueva Estancia
+          Registrar Pago
         </Link>
       </div>
     );
@@ -54,16 +54,16 @@ export default function StaysList (props) {
   
   return (
     <div className="BadgesList">
-      <button onClick={props.onOpenModalCreate} className="btn btn-primary mt-5 m-2">Nueva Estancia</button>
-      <CreateStay
+      <button onClick={props.onOpenModalCreate} className="btn btn-primary mt-5 m-2">Registrar Pago</button>
+      <CreatePayment
         onClose={props.onCloseModalCreate}
         isOpen={props.modalCreateIsOpen}
         onChange={props.onChange}
         onSubmit={props.onSubmitPost}
-        vehicles={props.vehicles}
+        stays={props.stays}
       />
       <div className="form-grup mt-3">
-        <label>Buscar estancias por placa del vehiculo</label>
+        <label>Buscar pagos por placa del vehiculo</label>
         <input
           className="form-control"
           type="text"
@@ -79,29 +79,29 @@ export default function StaysList (props) {
           <thead className="table-dark">
             <tr>
               <th scope="col">No.</th>
+              <th scope="col">Fecha</th>
               <th scope="col">Vehiculo</th>
-              <th scope="col">Entrada</th>
-              <th scope="col">De Alta</th>
+              <th scope="col">Importe total</th>
               <th scope="col" colSpan="2" rowSpan="2">Acciones</th>
             </tr>
           </thead>
           <tbody className='table-secondary'>
-          {filteredStays.map(stay => {
+          {filteredPayments.map(payment => {
             return (
               <tr>
-                <th scope="row">{stay.id}</th>
-                <td>{stay.vehiculo}</td>
-                <td>{stay.hora_entrada}</td>
-                <td><input onChange={e => {}} className="form-check-input" type="checkbox" value="" id="flexCheckDefault" checked={stay.esta_de_alta} /></td>
+                <th scope="row">{payment.id}</th>
+                <td>{payment.fecha}</td>
+                <td>{payment.estancia}</td>
+                <td>{payment.importe_total}</td>
                 <td><button className="btn btn-warning">Editar</button></td>
                 <td>
                   <button onClick={props.onOpenModalDelete} className="btn btn-danger">Eliminar</button>
-                  <DeleteStay
+                  <DeletePayment
                     onClose={props.onCloseModalDelete}
                     isOpen={props.modalDeleteIsOpen}
                     onSubmit={props.onSubmitDelete}
                     myToken={props.myToken}
-                    stayId={''}
+                    paymentId={''}
                   />
                 </td>
               </tr>

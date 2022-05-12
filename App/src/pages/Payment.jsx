@@ -1,7 +1,7 @@
 import {React, Component} from "react";
 
 import './styles/Stay.css';
-import StaysList from '../components/stay/List';
+import PaymentsList from '../components/payment/List';
 import Layout from '../layouts/Layout';
 import Error from '../pages/Error';
 
@@ -11,30 +11,30 @@ export default class Payment extends Component {
     error: null,
     modalCreateIsOpen: false,
     modalDeleteIsOpen: false,
-    staysList: [],
-    selectedVehicle: [],
-    newStay: {
-      vehiculo: undefined
+    paymentsList: [],
+    selectedStay: [],
+    newPayment: {
+      estancia: undefined
     }
   }
 
   componentDidMount() {
-    this.loadStays();
-    this.intervalId = setInterval(this.loadStays, 5000);
+    this.loadPayments();
+    this.intervalId = setInterval(this.loadPayments, 5000);
   }
 
   componentWillUnmount() {
     clearInterval(this.intervalId);
   }
 
-  loadStays = async e => {
+  loadPayments = async e => {
     this.setState({
       loading: true,
       error: null
     });
 
     try {
-      await fetch('http://127.0.0.1:8000/api/v1/stays/list/', {
+      await fetch('http://127.0.0.1:8000/api/v1/stays/payments/', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -44,7 +44,7 @@ export default class Payment extends Component {
       .then(data => data.json())
       .then(data => {
         this.setState({
-          staysList: data,
+          paymentsList: data,
           loading: false
         });
       });
@@ -56,20 +56,20 @@ export default class Payment extends Component {
     }
   }
 
-  sendStay = async e => {
+  sendPayment = async e => {
     this.setState({
       loading: true,
       error: null
     });
 
     try {
-      await fetch('http://127.0.0.1:8000/api/v1/stays/list/', {
+      await fetch('http://127.0.0.1:8000/api/v1/stays/payments/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Token ${this.props.myToken}`
         },
-        body: JSON.stringify(this.state.newStay)
+        body: JSON.stringify(this.state.newPayment)
       }).then(data => data.json());
 
       this.setState({ modalCreateIsOpen: false });
@@ -93,7 +93,7 @@ export default class Payment extends Component {
     });
 
     try {
-      await fetch('http://127.0.0.1:8000/api/v1/vehicles/list/', {
+      await fetch('http://127.0.0.1:8000/api/v1/stays/list/', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -103,7 +103,7 @@ export default class Payment extends Component {
       .then(data => data.json())
       .then(data => {
         this.setState({
-          selectedVehicle: data,
+          selectedStay: data,
           loading: false
         });
       });
@@ -117,7 +117,7 @@ export default class Payment extends Component {
 
   handleChange = e => {
     this.setState({
-      newStay: { vehiculo: e.target.value }
+      newPayment: { estancia: e.target.value }
     });
   }
 
@@ -130,7 +130,7 @@ export default class Payment extends Component {
   }
 
   render() {
-    if (this.state.loading === true && !this.state.staysList) {
+    if (this.state.loading === true && !this.state.paymentsList) {
       return 'Loading...';
     }
     if (this.state.error) {
@@ -141,15 +141,15 @@ export default class Payment extends Component {
         <div className="Badges__container">
           <div className="Badges__list">
             <div className="Badges__container">
-              <StaysList
-                stays={this.state.staysList}
+              <PaymentsList
+                payments={this.state.paymentsList}
 
                 onOpenModalCreate={this.handleOpenModalCreate}
                 onCloseModalCreate={this.handleCloseModalCreate}
                 modalCreateIsOpen={this.state.modalCreateIsOpen}
-                onSubmitPost={this.sendStay}
+                onSubmitPost={this.sendPayment}
                 onChange={this.handleChange}
-                vehicles={this.state.selectedVehicle}
+                stays={this.state.selectedStay}
 
                 onOpenModalDelete={this.handleOpenModalDelete}
                 onCloseModalDelete={this.handleCloseModalDelete}

@@ -13,11 +13,11 @@ export default function LoginForm (props) {
       await fetch('http://127.0.0.1:8000/auth/', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(props.formValues)
+        body: JSON.stringify(props.myCredentials)
       })
       .then(data => data.json())
       .then(data => {
-        props.userToken(data.token);
+        props.getToken(data.token);
         if (data.token) {
           navigate('/stay')
         }
@@ -37,7 +37,7 @@ export default function LoginForm (props) {
               <input
                 className="form-control"
                 onChange={props.onChange}
-                value={props.formValues.username}
+                value={props.myCredentials.username}
                 type="text"
                 name="username"
                 placeholder="Username"
@@ -48,7 +48,7 @@ export default function LoginForm (props) {
               <input
                 className="form-control"
                 onChange={props.onChange}
-                value={props.formValues.password}
+                value={props.myCredentials.password}
                 type="password"
                 name="password"
                 placeholder="Password"

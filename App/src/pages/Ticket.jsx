@@ -1,40 +1,41 @@
 import {React, Component} from "react";
 
 import './styles/Stay.css';
-import StaysList from '../components/stay/List';
+import TicketsList from '../components/ticket/List';
 import Layout from '../layouts/Layout';
 import Error from '../pages/Error';
 
-export default class Payment extends Component {
+export default class Ticket extends Component {
   state = {
     loading: true,
     error: null,
     modalCreateIsOpen: false,
     modalDeleteIsOpen: false,
-    staysList: [],
-    selectedVehicle: [],
-    newStay: {
-      vehiculo: undefined
+    ticketsList: [],
+    selectedPayment: [],
+    newTicket: {
+      codigo: undefined,
+      pago: undefined
     }
   }
 
   componentDidMount() {
-    this.loadStays();
-    this.intervalId = setInterval(this.loadStays, 5000);
+    this.loadTickets();
+    this.intervalId = setInterval(this.loadTickets, 5000);
   }
 
   componentWillUnmount() {
     clearInterval(this.intervalId);
   }
 
-  loadStays = async e => {
+  loadTickets = async e => {
     this.setState({
       loading: true,
       error: null
     });
 
     try {
-      await fetch('http://127.0.0.1:8000/api/v1/stays/list/', {
+      await fetch('http://127.0.0.1:8000/api/v1/stays/tickets/', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -44,7 +45,7 @@ export default class Payment extends Component {
       .then(data => data.json())
       .then(data => {
         this.setState({
-          staysList: data,
+          ticketsList: data,
           loading: false
         });
       });
@@ -56,20 +57,20 @@ export default class Payment extends Component {
     }
   }
 
-  sendStay = async e => {
+  sendTicket = async e => {
     this.setState({
       loading: true,
       error: null
     });
 
     try {
-      await fetch('http://127.0.0.1:8000/api/v1/stays/list/', {
+      await fetch('http://127.0.0.1:8000/api/v1/stays/tickets/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Token ${this.props.myToken}`
         },
-        body: JSON.stringify(this.state.newStay)
+        body: JSON.stringify(this.state.newTicket)
       }).then(data => data.json());
 
       this.setState({ modalCreateIsOpen: false });
@@ -93,7 +94,7 @@ export default class Payment extends Component {
     });
 
     try {
-      await fetch('http://127.0.0.1:8000/api/v1/vehicles/list/', {
+      await fetch('http://127.0.0.1:8000/api/v1/stays/payments/', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -103,7 +104,7 @@ export default class Payment extends Component {
       .then(data => data.json())
       .then(data => {
         this.setState({
-          selectedVehicle: data,
+          selectedPayment: data,
           loading: false
         });
       });
@@ -117,7 +118,9 @@ export default class Payment extends Component {
 
   handleChange = e => {
     this.setState({
-      newStay: { vehiculo: e.target.value }
+      newTicket: {
+        [e.target.name]: e.target.value
+      }
     });
   }
 
@@ -130,7 +133,7 @@ export default class Payment extends Component {
   }
 
   render() {
-    if (this.state.loading === true && !this.state.staysList) {
+    if (this.state.loading === true && !this.state.ticketsList) {
       return 'Loading...';
     }
     if (this.state.error) {
@@ -141,15 +144,15 @@ export default class Payment extends Component {
         <div className="Badges__container">
           <div className="Badges__list">
             <div className="Badges__container">
-              <StaysList
-                stays={this.state.staysList}
+              <TicketsList
+                tickets={this.state.ticketsList}
 
                 onOpenModalCreate={this.handleOpenModalCreate}
                 onCloseModalCreate={this.handleCloseModalCreate}
                 modalCreateIsOpen={this.state.modalCreateIsOpen}
-                onSubmitPost={this.sendStay}
+                onSubmitPost={this.sendTicket}
                 onChange={this.handleChange}
-                vehicles={this.state.selectedVehicle}
+                payments={this.state.selectedPayment}
 
                 onOpenModalDelete={this.handleOpenModalDelete}
                 onCloseModalDelete={this.handleCloseModalDelete}

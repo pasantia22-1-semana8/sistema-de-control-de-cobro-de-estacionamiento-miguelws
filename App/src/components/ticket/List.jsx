@@ -3,38 +3,38 @@ import { Link } from 'react-router-dom';
 import { useNavigate } from "react-router-dom";
 
 import '../styles/List.css';
-import CreateStay from './Create';
-import DeleteStay from './Delete';
+import CreateTicket from './Create';
+import DeleteTicket from './Delete';
 
-function useSearchStays(stays) {
+function useSearchTickets(tickets) {
   let navigate = useNavigate();
 
   const [query, setQuery] = React.useState('');
-  const [filteredStays, setfilteredStays] = React.useState(stays);
+  const [filteredTickets, setfilteredTickets] = React.useState(tickets);
 
   React.useMemo(() => {
     try {
-      const result = stays.filter(stay => {
-        return `${stay.vehiculo}`.toLowerCase().includes(query.toLowerCase());
+      const result = tickets.filter(ticket => {
+        return `${ticket.codigo} ${ticket.pago}`.toLowerCase().includes(query.toLowerCase());
       })
-      setfilteredStays(result);
+      setfilteredTickets(result);
     } catch (error) {
       console.log(error);
       navigate('/')
     }
-  }, [stays, query]);
-  return {query, setQuery, filteredStays}
+  }, [tickets, query]);
+  return {query, setQuery, filteredTickets}
 }
 
-export default function StaysList (props) {
-  const stays = props.stays;
-  const {query, setQuery, filteredStays} = useSearchStays(stays);
+export default function TicketsList (props) {
+  const tickets = props.tickets;
+  const {query, setQuery, filteredTickets} = useSearchTickets(tickets);
 
-  if (filteredStays.length === 0) {
+  if (filteredTickets.length === 0) {
     return (
       <div>
         <div className="form-grup">
-          <label>Filtrar Estancias</label>
+          <label>Filtrar Tickets</label>
           <input
             type="text"
             className="form-control"
@@ -44,9 +44,9 @@ export default function StaysList (props) {
             }}
           />
         </div>
-        <h3>No se encontraron las estancias</h3>
+        <h3>No se encontraron los tickets</h3>
         <Link className='btn btn-primary' to="">
-          Nueva Estancia
+          Generar Ticket
         </Link>
       </div>
     );
@@ -54,16 +54,16 @@ export default function StaysList (props) {
   
   return (
     <div className="BadgesList">
-      <button onClick={props.onOpenModalCreate} className="btn btn-primary mt-5 m-2">Nueva Estancia</button>
-      <CreateStay
+      <button onClick={props.onOpenModalCreate} className="btn btn-primary mt-5 m-2">Generar Ticket</button>
+      <CreateTicket
         onClose={props.onCloseModalCreate}
         isOpen={props.modalCreateIsOpen}
         onChange={props.onChange}
         onSubmit={props.onSubmitPost}
-        vehicles={props.vehicles}
+        payments={props.payments}
       />
       <div className="form-grup mt-3">
-        <label>Buscar estancias por placa del vehiculo</label>
+        <label>Buscar tickets por placa del vehiculo</label>
         <input
           className="form-control"
           type="text"
@@ -79,29 +79,27 @@ export default function StaysList (props) {
           <thead className="table-dark">
             <tr>
               <th scope="col">No.</th>
-              <th scope="col">Vehiculo</th>
-              <th scope="col">Entrada</th>
-              <th scope="col">De Alta</th>
+              <th scope="col">Codigo</th>
+              <th scope="col">Informacion del pago</th>
               <th scope="col" colSpan="2" rowSpan="2">Acciones</th>
             </tr>
           </thead>
           <tbody className='table-secondary'>
-          {filteredStays.map(stay => {
+          {filteredTickets.map(ticket => {
             return (
               <tr>
-                <th scope="row">{stay.id}</th>
-                <td>{stay.vehiculo}</td>
-                <td>{stay.hora_entrada}</td>
-                <td><input onChange={e => {}} className="form-check-input" type="checkbox" value="" id="flexCheckDefault" checked={stay.esta_de_alta} /></td>
+                <th scope="row">{ticket.id}</th>
+                <td>{ticket.codigo}</td>
+                <td>{ticket.pago}</td>
                 <td><button className="btn btn-warning">Editar</button></td>
                 <td>
                   <button onClick={props.onOpenModalDelete} className="btn btn-danger">Eliminar</button>
-                  <DeleteStay
+                  <DeleteTicket
                     onClose={props.onCloseModalDelete}
                     isOpen={props.modalDeleteIsOpen}
                     onSubmit={props.onSubmitDelete}
                     myToken={props.myToken}
-                    stayId={''}
+                    tickettId={''}
                   />
                 </td>
               </tr>

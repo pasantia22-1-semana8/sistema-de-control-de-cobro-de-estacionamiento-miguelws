@@ -7,14 +7,14 @@ export default function CreateStay(props) {
     <ModalCreate isOpen={props.isOpen} onClose={props.onClose}>
       <div>
         <div>
-          <h1>Nueva Estancia</h1>
-          <p>Seleccione la placa del vehiculo, a la que corresponde la estancia</p>
+          <h1>Nuevo Pago</h1>
+          <p>Seleccione la estancia, para generar su correspondiente pago.</p>
         </div>
         <div className="m-5">
           <select className="form-select" onChange={props.onChange}>
-          <option >Placa de vehiculos</option>
-            {props.vehicles.map(vehicle => {
-              return <option value={vehicle.id} >{vehicle.placa}</option>
+          <option >Estancias</option>
+            {props.stays.map(stay => {
+              return <option value={stay.id} >{stay.hora_entrada} {stay.vehiculo}</option>
             })}
           </select>
         </div>

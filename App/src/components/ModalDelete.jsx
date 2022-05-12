@@ -1,9 +1,9 @@
 import React from "react";
 import ReactDOM from "react-dom";
 
-import "./styles/Modal.css";
+import './styles/Modal.css';
 
-export default function Modal (props) {
+export default function ModalDelete (props) {
   if (!props.isOpen) {
     return null;
   }

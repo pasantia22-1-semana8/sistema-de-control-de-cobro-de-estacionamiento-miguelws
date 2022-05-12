@@ -31,5 +31,5 @@ class TicketSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         response = super().to_representation(instance)
-        response['pago'] = instance.pago if instance.pago == None else instance.pago.fecha
+        response['pago'] = instance.pago if instance.pago == None else instance.pago.estancia.vehiculo.placa + ' ' + str(instance.pago.fecha)
         return response

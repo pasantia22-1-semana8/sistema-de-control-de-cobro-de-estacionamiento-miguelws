@@ -30,5 +30,5 @@ class VehiculoSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         response = super().to_representation(instance)
-        response['tarifa'] = instance.tarifa if instance.tarifa == None else instance.tarifa.importe
+        response['tarifa'] = instance.tarifa if instance.tarifa == None else str(instance.tarifa.importe) + ' ' + instance.tarifa.estado_residencia.estado
         return response
