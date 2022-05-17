@@ -28,7 +28,7 @@ class Tarifa(models.Model):
 
 class Vehiculo(models.Model):
     placa = models.CharField(max_length=100, unique=True, null=False, blank=False)
-    tarifa = models.OneToOneField(Tarifa, on_delete=models.CASCADE, null=False, blank=False)
+    tarifa = models.ForeignKey(Tarifa, on_delete=models.CASCADE, null=False, blank=False)
     descripcion = models.CharField(max_length=255, null=True, blank=True)
     esta_activo = models.BooleanField(default=True)
 

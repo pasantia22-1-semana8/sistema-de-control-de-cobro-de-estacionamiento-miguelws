@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate } from "react-router-dom";
 
 import './styles/LoginForm.css';
+import api from '../service/Api';
 
 export default function LoginForm (props) {
   let navigate = useNavigate();
@@ -10,15 +11,10 @@ export default function LoginForm (props) {
     e.preventDefault();
 
     try {
-      await fetch('http://127.0.0.1:8000/auth/', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(props.myCredentials)
-      })
-      .then(data => data.json())
-      .then(data => {
-        props.getToken(data.token);
+      await api.auth.get(props.myCredentials).then(data => data.json()).then(data => {
         if (data.token) {
+          localStorage.setItem('token-info', JSON.stringify(data.token));
+          props.getToken(JSON.parse(localStorage.getItem('token-info')));
           navigate('/stay')
         }
       });
@@ -29,7 +25,7 @@ export default function LoginForm (props) {
 
   return (
     <div id='login' className="container">
-      <h1 className="text-center pb-5">Sign in</h1>
+      <h1 className="text-center pb-5">Inicio de sesión</h1>
       <div className="row justify-content-center">
         <div className="col-md-4">
           <form className="form" onSubmit={handleSubmit}>
@@ -56,7 +52,7 @@ export default function LoginForm (props) {
               />
             </div>
             <div className="text-center pt-4">
-              <input id='tamano' type="submit" name="submit" className="btn btn-dark" value="Iniciar Sesion"/>
+              <input id='tamano' type="submit" name="submit" className="btn btn-dark" value="Entrar"/>
             </div>
           </form>
         </div>

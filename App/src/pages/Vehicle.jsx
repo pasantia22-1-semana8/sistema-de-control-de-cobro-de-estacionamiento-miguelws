@@ -2,7 +2,8 @@ import {React, Component} from "react";
 
 import './styles/Stay.css';
 import VehiclesList from '../components/vehicle/List';
-import Layout from '../layouts/Layout';
+import api from '../service/Api';
+import Loading from '../components/Loading';
 import Error from '../pages/Error';
 
 export default class Vehicle extends Component {
@@ -17,38 +18,30 @@ export default class Vehicle extends Component {
       placa: undefined,
       tarifa: undefined,
       descripcion: undefined
-    }
+    },
+    vehicleId: undefined
   }
 
   componentDidMount() {
-    this.loadVehicles();
-    this.intervalId = setInterval(this.loadVehicles, 5000);
+    this.handleLoadVehicles();
+    this.intervalId = setInterval(this.handleLoadVehicles, 5000);
   }
 
   componentWillUnmount() {
     clearInterval(this.intervalId);
   }
 
-  loadVehicles = async e => {
+  handleLoadVehicles = async e => {
     this.setState({
       loading: true,
       error: null
     });
 
     try {
-      await fetch('http://127.0.0.1:8000/api/v1/vehicles/list/', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Token ${this.props.myToken}`
-        }
-      })
-      .then(data => data.json())
-      .then(data => {
-        this.setState({
-          vehiclesList: data,
-          loading: false
-        });
+      const data = await api.vehicles.list(this.props.myToken).then(data => data.json());
+      this.setState({
+        loading: false,
+        vehiclesList: data
       });
     } catch (error) {
       this.setState({
@@ -58,29 +51,32 @@ export default class Vehicle extends Component {
     }
   }
 
-  sendVehicle = async e => {
+  handleSendVehicle = async e => {
     this.setState({
       loading: true,
       error: null
     });
 
     try {
-      await fetch('http://127.0.0.1:8000/api/v1/vehicles/list/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Token ${this.props.myToken}`
-        },
-        body: JSON.stringify(this.state.newVehicle)
-      }).then(data => data.json());
-
-      this.setState({ modalCreateIsOpen: false });
+      await api.vehicles.create(this.props.myToken, this.state.newVehicle).then(data => data.json());
+      this.setState({
+        loading: false,
+        modalCreateIsOpen: false
+      });
     } catch (error) {
       this.setState({
         loading: false,
         error: error
       });
     }
+  }
+
+  handleChange = e => {
+    this.setState({
+      newVehicle: {
+        [e.target.name]: e.target.value
+      }
+    });
   }
 
   handleCloseModalCreate = e => {
@@ -95,19 +91,10 @@ export default class Vehicle extends Component {
     });
 
     try {
-      await fetch('http://127.0.0.1:8000/api/v1/vehicles/fees/', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Token ${this.props.myToken}`
-        }
-      })
-      .then(data => data.json())
-      .then(data => {
-        this.setState({
-          selectedFees: data,
-          loading: false
-        });
+      const data = await api.fees.list(this.props.myToken).then(data => data.json());
+      this.setState({
+        loading: false,
+        selectedFees: data
       });
     } catch (error) {
       this.setState({
@@ -117,14 +104,25 @@ export default class Vehicle extends Component {
     }
   }
 
-  handleChange = e => {
+  handleRemoveVehicle = async (e) => {
+    try {
+      await api.vehicles.remove(this.props.myToken, this.state.vehicleId).then(data => data.json());
+      this.setState({
+        loading: false,
+        modalDeleteIsOpen: false
+      });
+    } catch (error) {
+      this.setState({
+        loading: false,
+        error: error
+      });
+    }
+  }
+
+  handleGetVehicleId = (id) => {
     this.setState({
-      newVehicle: {
-        ...this.state.newVehicle,
-        [e.target.name]: e.target.value
-      }
+      vehicleId: id
     });
-    console.log(this.state.newVehicle);
   }
 
   handleCloseModalDelete = e => {
@@ -137,35 +135,34 @@ export default class Vehicle extends Component {
 
   render() {
     if (this.state.loading === true && !this.state.vehiclesList) {
-      return 'Loading...';
+      return <Loading/>;
     }
     if (this.state.error) {
       return <Error error={this.state.error} />;
     }
     return (
-      <Layout>
-        <div className="Badges__container">
-          <div className="Badges__list">
-            <div className="Badges__container">
-              <VehiclesList
-                vehicles={this.state.vehiclesList}
+      <div className="Badges__container">
+        <div className="Badges__list">
+          <div className="Badges__container">
+            <VehiclesList
+              vehicles={this.state.vehiclesList}
 
-                onOpenModalCreate={this.handleOpenModalCreate}
-                onCloseModalCreate={this.handleCloseModalCreate}
-                modalCreateIsOpen={this.state.modalCreateIsOpen}
-                onSubmitPost={this.sendVehicle}
-                onChange={this.handleChange}
-                fees={this.state.selectedFees}
+              onOpenModalCreate={this.handleOpenModalCreate}
+              onCloseModalCreate={this.handleCloseModalCreate}
+              modalCreateIsOpen={this.state.modalCreateIsOpen}
+              onCreateVehicle={this.handleSendVehicle}
+              onChange={this.handleChange}
+              fees={this.state.selectedFees}
 
-                onOpenModalDelete={this.handleOpenModalDelete}
-                onCloseModalDelete={this.handleCloseModalDelete}
-                modalDeleteIsOpen={this.state.modalDeleteIsOpen}
-                myToken={this.props.myToken}
-              />
-            </div>
+              onOpenModalDelete={this.handleOpenModalDelete}
+              onCloseModalDelete={this.handleCloseModalDelete}
+              modalDeleteIsOpen={this.state.modalDeleteIsOpen}
+              getVehicleId={this.handleGetVehicleId}
+              onDeleteVehicle={this.handleRemoveVehicle}
+            />
           </div>
         </div>
-      </Layout>
+      </div>
     );
   }
 }

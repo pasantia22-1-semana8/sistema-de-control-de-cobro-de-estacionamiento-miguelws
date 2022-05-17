@@ -13,7 +13,7 @@ export default function CreateVehicle(props) {
           <select className="form-select" onChange={props.onChange} name="tarifa">
             <option >Tarifas</option>
             {props.fees.map(fee => {
-              return <option value={fee.id}>{fee.importe} {fee.estado_residencia}</option>
+              return <option value={fee.id}>{fee.importe} {fee.estado_residencia} {fee.tipo_vehiculo}</option>
             })}
           </select>
           <textarea className="form-control mt-3" onChange={props.onChange} rows="3" name="descripcion" placeholder="Descripcion (opcional)" />

@@ -10,8 +10,8 @@ class EstanciaSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         response = super().to_representation(instance)
         response['vehiculo'] = instance.vehiculo if instance.vehiculo == None else instance.vehiculo.placa + ' ' + instance.vehiculo.tarifa.estado_residencia.estado + ' ' + instance.vehiculo.tarifa.tipo_vehiculo.nombre
-        response['hora_entrada'] = instance.hora_entrada.strftime("%Y-%m-%d %H:%M:%S")
-        response['hora_salida'] = instance.hora_salida.strftime("%Y-%m-%d %H:%M:%S")
+        response['hora_entrada'] = instance.hora_entrada.strftime("%d/%m/%Y %I:%M %p")
+        response['hora_salida'] = instance.hora_salida.strftime("%d/%m/%Y %I:%M %p")
         return response
 
 class PagoSerializer(serializers.ModelSerializer):
@@ -21,6 +21,7 @@ class PagoSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         response = super().to_representation(instance)
+        response['fecha'] = instance.fecha.strftime("%d/%m/%Y")
         response['estancia'] = instance.estancia if instance.estancia == None else instance.estancia.vehiculo.placa
         return response
 
@@ -31,5 +32,5 @@ class TicketSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         response = super().to_representation(instance)
-        response['pago'] = instance.pago if instance.pago == None else instance.pago.estancia.vehiculo.placa + ' ' + str(instance.pago.fecha)
+        response['pago'] = instance.pago if instance.pago == None else str(instance.pago.fecha.strftime("%d/%m/%Y")) + ' ' + instance.pago.estancia.vehiculo.placa
         return response

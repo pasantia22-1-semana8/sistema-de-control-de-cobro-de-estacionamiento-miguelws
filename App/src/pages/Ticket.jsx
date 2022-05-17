@@ -2,7 +2,8 @@ import {React, Component} from "react";
 
 import './styles/Stay.css';
 import TicketsList from '../components/ticket/List';
-import Layout from '../layouts/Layout';
+import api from '../service/Api';
+import Loading from '../components/Loading';
 import Error from '../pages/Error';
 
 export default class Ticket extends Component {
@@ -16,38 +17,30 @@ export default class Ticket extends Component {
     newTicket: {
       codigo: undefined,
       pago: undefined
-    }
+    },
+    ticketId: undefined
   }
 
   componentDidMount() {
-    this.loadTickets();
-    this.intervalId = setInterval(this.loadTickets, 5000);
+    this.handleLoadTickets();
+    this.intervalId = setInterval(this.handleLoadTickets, 5000);
   }
 
   componentWillUnmount() {
     clearInterval(this.intervalId);
   }
 
-  loadTickets = async e => {
+  handleLoadTickets = async e => {
     this.setState({
       loading: true,
       error: null
     });
 
     try {
-      await fetch('http://127.0.0.1:8000/api/v1/stays/tickets/', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Token ${this.props.myToken}`
-        }
-      })
-      .then(data => data.json())
-      .then(data => {
-        this.setState({
-          ticketsList: data,
-          loading: false
-        });
+      const data = await api.tickets.list(this.props.myToken).then(data => data.json());
+      this.setState({
+        loading: false,
+        ticketsList: data
       });
     } catch (error) {
       this.setState({
@@ -57,7 +50,7 @@ export default class Ticket extends Component {
     }
   }
 
-  sendTicket = async e => {
+  handleSendTicket = async e => {
     this.setState({
       loading: true,
       error: null
@@ -80,6 +73,14 @@ export default class Ticket extends Component {
         error: error
       });
     }
+  }
+
+  handleChange = e => {
+    this.setState({
+      newTicket: {
+        [e.target.name]: e.target.value
+      }
+    });
   }
 
   handleCloseModalCreate = e => {
@@ -116,11 +117,24 @@ export default class Ticket extends Component {
     }
   }
 
-  handleChange = e => {
+  handleRemoveTicket = async (e) => {
+    try {
+      await api.tickets.remove(this.props.myToken, this.state.ticketId).then(data => data.json());
+      this.setState({
+        loading: false,
+        modalDeleteIsOpen: false
+      });
+    } catch (error) {
+      this.setState({
+        loading: false,
+        error: error
+      });
+    }
+  }
+
+  handleGetTicketId = (id) => {
     this.setState({
-      newTicket: {
-        [e.target.name]: e.target.value
-      }
+      ticketId: id
     });
   }
 
@@ -134,35 +148,34 @@ export default class Ticket extends Component {
 
   render() {
     if (this.state.loading === true && !this.state.ticketsList) {
-      return 'Loading...';
+      return <Loading/>;
     }
     if (this.state.error) {
       return <Error error={this.state.error} />;
     }
     return (
-      <Layout>
-        <div className="Badges__container">
-          <div className="Badges__list">
-            <div className="Badges__container">
-              <TicketsList
-                tickets={this.state.ticketsList}
+      <div className="Badges__container">
+        <div className="Badges__list">
+          <div className="Badges__container">
+            <TicketsList
+              tickets={this.state.ticketsList}
 
-                onOpenModalCreate={this.handleOpenModalCreate}
-                onCloseModalCreate={this.handleCloseModalCreate}
-                modalCreateIsOpen={this.state.modalCreateIsOpen}
-                onSubmitPost={this.sendTicket}
-                onChange={this.handleChange}
-                payments={this.state.selectedPayment}
+              onOpenModalCreate={this.handleOpenModalCreate}
+              onCloseModalCreate={this.handleCloseModalCreate}
+              modalCreateIsOpen={this.state.modalCreateIsOpen}
+              onCreateTicket={this.handleSendTicket}
+              onChange={this.handleChange}
+              payments={this.state.selectedPayment}
 
-                onOpenModalDelete={this.handleOpenModalDelete}
-                onCloseModalDelete={this.handleCloseModalDelete}
-                modalDeleteIsOpen={this.state.modalDeleteIsOpen}
-                myToken={this.props.myToken}
-              />
-            </div>
+              onOpenModalDelete={this.handleOpenModalDelete}
+              onCloseModalDelete={this.handleCloseModalDelete}
+              modalDeleteIsOpen={this.state.modalDeleteIsOpen}
+              getTicketId={this.handleGetTicketId}
+              onDeleteTicket={this.handleRemoveTicket}
+            />
           </div>
         </div>
-      </Layout>
+      </div>
     );
   }
 }

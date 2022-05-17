@@ -2,7 +2,8 @@ import {React, Component} from "react";
 
 import './styles/Stay.css';
 import PaymentsList from '../components/payment/List';
-import Layout from '../layouts/Layout';
+import api from '../service/Api';
+import Loading from '../components/Loading';
 import Error from '../pages/Error';
 
 export default class Payment extends Component {
@@ -15,38 +16,30 @@ export default class Payment extends Component {
     selectedStay: [],
     newPayment: {
       estancia: undefined
-    }
+    },
+    paymentId: undefined
   }
 
   componentDidMount() {
-    this.loadPayments();
-    this.intervalId = setInterval(this.loadPayments, 5000);
+    this.handleLoadPayments();
+    this.intervalId = setInterval(this.handleLoadPayments, 5000);
   }
 
   componentWillUnmount() {
     clearInterval(this.intervalId);
   }
 
-  loadPayments = async e => {
+  handleLoadPayments = async e => {
     this.setState({
       loading: true,
       error: null
     });
 
     try {
-      await fetch('http://127.0.0.1:8000/api/v1/stays/payments/', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Token ${this.props.myToken}`
-        }
-      })
-      .then(data => data.json())
-      .then(data => {
-        this.setState({
-          paymentsList: data,
-          loading: false
-        });
+      const data = await api.payments.list(this.props.myToken).then(data => data.json());
+      this.setState({
+        loading: false,
+        paymentsList: data
       });
     } catch (error) {
       this.setState({
@@ -56,56 +49,17 @@ export default class Payment extends Component {
     }
   }
 
-  sendPayment = async e => {
+  handleSendPayment = async e => {
     this.setState({
       loading: true,
       error: null
     });
 
     try {
-      await fetch('http://127.0.0.1:8000/api/v1/stays/payments/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Token ${this.props.myToken}`
-        },
-        body: JSON.stringify(this.state.newPayment)
-      }).then(data => data.json());
-
-      this.setState({ modalCreateIsOpen: false });
-    } catch (error) {
+      await api.payments.create(this.props.myToken, this.state.newPayment).then(data => data.json());
       this.setState({
         loading: false,
-        error: error
-      });
-    }
-  }
-
-  handleCloseModalCreate = e => {
-    this.setState({ modalCreateIsOpen: false });
-  }
-  
-  handleOpenModalCreate = async e => {
-    this.setState({
-      loading: true,
-      error: null,
-      modalCreateIsOpen: true
-    });
-
-    try {
-      await fetch('http://127.0.0.1:8000/api/v1/stays/list/', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Token ${this.props.myToken}`
-        }
-      })
-      .then(data => data.json())
-      .then(data => {
-        this.setState({
-          selectedStay: data,
-          loading: false
-        });
+        modalCreateIsOpen: false
       });
     } catch (error) {
       this.setState({
@@ -121,6 +75,52 @@ export default class Payment extends Component {
     });
   }
 
+  handleCloseModalCreate = e => {
+    this.setState({ modalCreateIsOpen: false });
+  }
+  
+  handleOpenModalCreate = async e => {
+    this.setState({
+      loading: true,
+      error: null,
+      modalCreateIsOpen: true
+    });
+
+    try {
+      const data = await api.stays.list(this.props.myToken).then(data => data.json());
+      this.setState({
+        loading: false,
+        selectedStay: data
+      });
+    } catch (error) {
+      this.setState({
+        loading: false,
+        error: error
+      });
+    }
+  }
+
+  handleRemovePayment = async (e) => {
+    try {
+      await api.payments.remove(this.props.myToken, this.state.paymentId).then(data => data.json());
+      this.setState({
+        loading: false,
+        modalDeleteIsOpen: false
+      });
+    } catch (error) {
+      this.setState({
+        loading: false,
+        error: error
+      });
+    }
+  }
+
+  handleGetPaymentId = (id) => {
+    this.setState({
+      paymentId: id
+    });
+  }
+
   handleCloseModalDelete = e => {
     this.setState({ modalDeleteIsOpen: false });
   }
@@ -131,35 +131,34 @@ export default class Payment extends Component {
 
   render() {
     if (this.state.loading === true && !this.state.paymentsList) {
-      return 'Loading...';
+      return <Loading/>;
     }
     if (this.state.error) {
       return <Error error={this.state.error} />;
     }
     return (
-      <Layout>
-        <div className="Badges__container">
-          <div className="Badges__list">
-            <div className="Badges__container">
-              <PaymentsList
-                payments={this.state.paymentsList}
+      <div className="Badges__container">
+        <div className="Badges__list">
+          <div className="Badges__container">
+            <PaymentsList
+              payments={this.state.paymentsList}
 
-                onOpenModalCreate={this.handleOpenModalCreate}
-                onCloseModalCreate={this.handleCloseModalCreate}
-                modalCreateIsOpen={this.state.modalCreateIsOpen}
-                onSubmitPost={this.sendPayment}
-                onChange={this.handleChange}
-                stays={this.state.selectedStay}
+              onOpenModalCreate={this.handleOpenModalCreate}
+              onCloseModalCreate={this.handleCloseModalCreate}
+              modalCreateIsOpen={this.state.modalCreateIsOpen}
+              onCreatePayment={this.handleSendPayment}
+              onChange={this.handleChange}
+              stays={this.state.selectedStay}
 
-                onOpenModalDelete={this.handleOpenModalDelete}
-                onCloseModalDelete={this.handleCloseModalDelete}
-                modalDeleteIsOpen={this.state.modalDeleteIsOpen}
-                myToken={this.props.myToken}
-              />
-            </div>
+              onOpenModalDelete={this.handleOpenModalDelete}
+              onCloseModalDelete={this.handleCloseModalDelete}
+              modalDeleteIsOpen={this.state.modalDeleteIsOpen}
+              getPaymentId={this.handleGetPaymentId}
+              onDeletePayment={this.handleRemovePayment}
+            />
           </div>
         </div>
-      </Layout>
+      </div>
     );
   }
 }

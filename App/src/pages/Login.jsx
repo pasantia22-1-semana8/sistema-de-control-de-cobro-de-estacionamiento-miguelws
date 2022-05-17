@@ -1,6 +1,7 @@
 import React from "react";
 
 import LoginForm from '../components/LoginForm';
+import Loading from '../components/Loading';
 
 export default class Login extends React.Component {
   state = {
@@ -8,7 +9,9 @@ export default class Login extends React.Component {
     error: null,
     credentials: {
       username: '',
-      password: ''
+      password: '',
+      auth: false,
+      role: 'admin'
     },
   };
 
@@ -20,7 +23,7 @@ export default class Login extends React.Component {
 
   render() {
     if (this.state.loading) {
-      return 'Loading...';
+      return <Loading/>;
     }
     return (
       <React.Fragment>
@@ -35,7 +38,7 @@ export default class Login extends React.Component {
             </div>
           </div>
         </div>
-        </React.Fragment>
+      </React.Fragment>
     );
   }
 }

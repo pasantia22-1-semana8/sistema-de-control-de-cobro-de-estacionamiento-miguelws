@@ -1,14 +1,10 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { useNavigate } from "react-router-dom";
 
 import '../styles/List.css';
 import CreateVehicle from './Create';
 import DeleteVehicle from './Delete';
 
 function useSearchVehicles(vehicles) {
-  let navigate = useNavigate();
-
   const [query, setQuery] = React.useState('');
   const [filteredVehicles, setfilteredVehicles] = React.useState(vehicles);
 
@@ -20,7 +16,6 @@ function useSearchVehicles(vehicles) {
       setfilteredVehicles(result);
     } catch (error) {
       console.log(error);
-      navigate('/')
     }
   }, [vehicles, query]);
   return {query, setQuery, filteredVehicles}
@@ -30,52 +25,35 @@ export default function VehiclesList (props) {
   const vehicles = props.vehicles;
   const {query, setQuery, filteredVehicles} = useSearchVehicles(vehicles);
 
-  if (filteredVehicles.length === 0) {
+  const handleClick = (id) => {
+    props.getVehicleId(id);
+    props.onOpenModalDelete(true);
+  }
+
+  if (filteredVehicles.length !== 0) {
     return (
       <div>
-        <div className="form-grup">
-          <label>Filtrar Vehiculos</label>
+        <button onClick={props.onOpenModalCreate} className="btn btn-primary mt-5 m-2">Registrar Vehiculo</button>
+        <CreateVehicle
+          onClose={props.onCloseModalCreate}
+          isOpen={props.modalCreateIsOpen}
+          onChange={props.onChange}
+          onSubmit={props.onCreateVehicle}
+          fees={props.fees}
+        />
+        <div className="form-grup mt-3">
+          <label>Buscar vehiculos por placa</label>
           <input
-            type="text"
             className="form-control"
+            type="text"
             value={query}
             onChange={(e) => {
               setQuery(e.target.value)
             }}
+            autoFocus={true}
           />
         </div>
-        <h3>No se encontraron los vehiculos</h3>
-        <Link className='btn btn-primary' to="">
-          Registrar Vehiculo
-        </Link>
-      </div>
-    );
-  }
-  
-  return (
-    <div className="BadgesList">
-      <button onClick={props.onOpenModalCreate} className="btn btn-primary mt-5 m-2">Registrar Vehiculo</button>
-      <CreateVehicle
-        onClose={props.onCloseModalCreate}
-        isOpen={props.modalCreateIsOpen}
-        onChange={props.onChange}
-        onSubmit={props.onSubmitPost}
-        fees={props.fees}
-      />
-      <div className="form-grup mt-3">
-        <label>Buscar vehiculos por placa</label>
-        <input
-          className="form-control"
-          type="text"
-          value={query}
-          onChange={(e) => {
-            setQuery(e.target.value)
-          }}
-          autoFocus={true}
-        />
-      </div>
-      <table className="BadgesListItem table table-light">
-        <ul className="list-unstyled">
+        <table className="BadgesList table table-light">
           <thead className="table-dark">
             <tr>
               <th scope="col">No.</th>
@@ -86,30 +64,47 @@ export default function VehiclesList (props) {
             </tr>
           </thead>
           <tbody className='table-secondary'>
-          {filteredVehicles.map(vehicle => {
-            return (
-              <tr>
-                <th scope="row">{vehicle.id}</th>
-                <td>{vehicle.placa}</td>
-                <td>{vehicle.tarifa}</td>
-                <td>{vehicle.descripcion}</td>
-                <td><button className="btn btn-warning">Editar</button></td>
-                <td>
-                  <button onClick={props.onOpenModalDelete} className="btn btn-danger">Eliminar</button>
-                  <DeleteVehicle
-                    onClose={props.onCloseModalDelete}
-                    isOpen={props.modalDeleteIsOpen}
-                    onSubmit={props.onSubmitDelete}
-                    myToken={props.myToken}
-                    vehicleId={''}
-                  />
-                </td>
-              </tr>
-            );
-          })}
+            {filteredVehicles.map((vehicle, counter=0) => {
+              return (
+                <tr key={vehicle.id}>
+                  <th scope="row">{counter + 1}</th>
+                  <td>{vehicle.placa}</td>
+                  <td>{vehicle.tarifa}</td>
+                  <td>{vehicle.descripcion}</td>
+                  <td><button className="btn btn-warning">Editar</button></td>
+                  <td>
+                    <button onClick={() => handleClick(vehicle.id)} className="btn btn-danger">Eliminar</button>
+                    <DeleteVehicle
+                      onClose={props.onCloseModalDelete}
+                      isOpen={props.modalDeleteIsOpen}
+                      onDelete={props.onDeleteVehicle}
+                    />
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
-        </ul>
-      </table>
-    </div>
-  );
+        </table>
+      </div>
+    );
+  } else {
+    return (
+      <div className="BadgesList">
+        <button onClick={props.onOpenModalCreate} className="btn btn-primary mt-5 m-2">Registrar Vehiculo</button>
+        <div className="form-grup mt-3 mb-5">
+          <label>Buscando...</label>
+          <input
+            className="form-control"
+            type="text"
+            value={query}
+            onChange={(e) => {
+              setQuery(e.target.value)
+            }}
+            autoFocus={true}
+          />
+        </div>
+        <h3>No se encontraron estancias</h3>
+      </div>
+    );
+  }
 }
