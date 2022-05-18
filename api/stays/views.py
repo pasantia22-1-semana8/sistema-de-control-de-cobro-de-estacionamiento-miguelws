@@ -9,9 +9,17 @@ from stays.models import *
 
 class EstanciaViewSet(viewsets.ModelViewSet):
     serializer_class = EstanciaSerializer
-    queryset = Estancia.objects.filter(esta_activo=True)
+    queryset = Estancia.objects.filter(esta_activo=True, esta_de_alta=False)
     authentication_classes = [TokenAuthentication, ]
     permission_classes = [IsAuthenticated, ]
+
+    def update(self, request, pk=None):
+        estancia = self.get_queryset().filter(id=pk).first()
+        if estancia:
+            estancia.esta_de_alta = True
+            estancia.save()
+            return Response({'message': 'Estancia actualizado correctamente!'}, status=status.HTTP_200_OK)
+        return Response({'error': 'No existe esta estancia'}, status=status.HTTP_400_BAD_REQUEST)
 
     def destroy(self, request, pk=None):
         estancia = self.get_queryset().filter(id=pk).first()
@@ -20,20 +28,6 @@ class EstanciaViewSet(viewsets.ModelViewSet):
             estancia.save()
             return Response({'message': 'Estancia eliminado correctamente!'}, status=status.HTTP_200_OK)
         return Response({'error': 'No existe esta estancia'}, status=status.HTTP_400_BAD_REQUEST)
-
-class PagoViewSet(viewsets.ModelViewSet):
-    serializer_class = PagoSerializer
-    queryset = ProxyPago.objects.filter(esta_activo=True)
-    authentication_classes = [TokenAuthentication, ]
-    permission_classes = [IsAuthenticated, ]
-
-    def destroy(self, request, pk=None):
-        pago = self.get_queryset().filter(id=pk).first()
-        if pago:
-            pago.esta_activo = False
-            pago.save()
-            return Response({'message': 'Pago eliminado correctamente!'}, status=status.HTTP_200_OK)
-        return Response({'error': 'No existe este pago'}, status=status.HTTP_400_BAD_REQUEST)
 
 class TicketViewSet(viewsets.ModelViewSet):
     serializer_class = TicketSerializer
@@ -48,3 +42,17 @@ class TicketViewSet(viewsets.ModelViewSet):
             ticket.save()
             return Response({'message': 'Ticket eliminado correctamente!'}, status=status.HTTP_200_OK)
         return Response({'error': 'No existe este ticket'}, status=status.HTTP_400_BAD_REQUEST)
+
+class PagoViewSet(viewsets.ModelViewSet):
+    serializer_class = PagoSerializer
+    queryset = ProxyPago.objects.filter(esta_activo=True)
+    authentication_classes = [TokenAuthentication, ]
+    permission_classes = [IsAuthenticated, ]
+
+    def destroy(self, request, pk=None):
+        pago = self.get_queryset().filter(id=pk).first()
+        if pago:
+            pago.esta_activo = False
+            pago.save()
+            return Response({'message': 'Pago eliminado correctamente!'}, status=status.HTTP_200_OK)
+        return Response({'error': 'No existe este pago'}, status=status.HTTP_400_BAD_REQUEST)

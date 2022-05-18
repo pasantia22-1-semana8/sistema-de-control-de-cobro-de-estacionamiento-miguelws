@@ -10,15 +10,14 @@ export default class Ticket extends Component {
   state = {
     loading: true,
     error: null,
-    modalCreateIsOpen: false,
-    modalDeleteIsOpen: false,
     ticketsList: [],
-    selectedPayment: [],
-    newTicket: {
-      codigo: undefined,
-      pago: undefined
+    modalDeleteIsOpen: false,
+    ticketId: undefined,
+    modalCreatePaymentIsOpen: false,
+    newPayment: {
+      ticket: undefined
     },
-    ticketId: undefined
+    stayId: undefined
   }
 
   componentDidMount() {
@@ -49,74 +48,7 @@ export default class Ticket extends Component {
       });
     }
   }
-
-  handleSendTicket = async e => {
-    this.setState({
-      loading: true,
-      error: null
-    });
-
-    try {
-      await fetch('http://127.0.0.1:8000/api/v1/stays/tickets/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Token ${this.props.myToken}`
-        },
-        body: JSON.stringify(this.state.newTicket)
-      }).then(data => data.json());
-
-      this.setState({ modalCreateIsOpen: false });
-    } catch (error) {
-      this.setState({
-        loading: false,
-        error: error
-      });
-    }
-  }
-
-  handleChange = e => {
-    this.setState({
-      newTicket: {
-        [e.target.name]: e.target.value
-      }
-    });
-  }
-
-  handleCloseModalCreate = e => {
-    this.setState({ modalCreateIsOpen: false });
-  }
   
-  handleOpenModalCreate = async e => {
-    this.setState({
-      loading: true,
-      error: null,
-      modalCreateIsOpen: true
-    });
-
-    try {
-      await fetch('http://127.0.0.1:8000/api/v1/stays/payments/', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Token ${this.props.myToken}`
-        }
-      })
-      .then(data => data.json())
-      .then(data => {
-        this.setState({
-          selectedPayment: data,
-          loading: false
-        });
-      });
-    } catch (error) {
-      this.setState({
-        loading: false,
-        error: error
-      });
-    }
-  }
-
   handleRemoveTicket = async (e) => {
     try {
       await api.tickets.remove(this.props.myToken, this.state.ticketId).then(data => data.json());
@@ -146,6 +78,50 @@ export default class Ticket extends Component {
     this.setState({ modalDeleteIsOpen: true });
   }
 
+  handleSendPayment = async e => {
+    this.setState({
+      loading: true,
+      error: null
+    });
+
+    try {
+      await api.stays.update(this.props.myToken, this.state.stayId).then(data => data.json());
+      await api.tickets.remove(this.props.myToken, this.state.ticketId).then(data => data.json());
+      await api.payments.create(this.props.myToken, this.state.newPayment).then(data => data.json());
+      this.setState({
+        loading: false,
+        modalCreatePaymentIsOpen: false
+      });
+    } catch (error) {
+      this.setState({
+        loading: false,
+        error: error
+      });
+    }
+  }
+
+  handleGetPaymentData = (id) => {
+    this.setState({
+      newPayment: {
+        ticket: id
+      }
+    });
+  }
+
+  handleCloseModalCreatePayment = e => {
+    this.setState({ modalCreatePaymentIsOpen: false });
+  }
+
+  handleOpenModalCreatePayment = e => {
+    this.setState({ modalCreatePaymentIsOpen: true });
+  }
+
+  handleGetStayId = (id) => {
+    this.setState({
+      stayId: id
+    });
+  }
+
   render() {
     if (this.state.loading === true && !this.state.ticketsList) {
       return <Loading/>;
@@ -160,18 +136,18 @@ export default class Ticket extends Component {
             <TicketsList
               tickets={this.state.ticketsList}
 
-              onOpenModalCreate={this.handleOpenModalCreate}
-              onCloseModalCreate={this.handleCloseModalCreate}
-              modalCreateIsOpen={this.state.modalCreateIsOpen}
-              onCreateTicket={this.handleSendTicket}
-              onChange={this.handleChange}
-              payments={this.state.selectedPayment}
-
               onOpenModalDelete={this.handleOpenModalDelete}
               onCloseModalDelete={this.handleCloseModalDelete}
               modalDeleteIsOpen={this.state.modalDeleteIsOpen}
               getTicketId={this.handleGetTicketId}
               onDeleteTicket={this.handleRemoveTicket}
+
+              onOpenModalCreatePayment={this.handleOpenModalCreatePayment}
+              onCloseModalCreatePayment={this.handleCloseModalCreatePayment}
+              modalCreatePaymentIsOpen={this.state.modalCreatePaymentIsOpen}
+              getPaymentData={this.handleGetPaymentData}
+              onCreatePayment={this.handleSendPayment}
+              getStayId={this.handleGetStayId}
             />
           </div>
         </div>

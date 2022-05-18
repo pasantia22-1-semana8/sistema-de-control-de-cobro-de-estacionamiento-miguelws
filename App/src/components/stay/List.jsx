@@ -2,6 +2,7 @@ import React from 'react';
 
 import '../styles/List.css';
 import CreateStay from './Create';
+import CreateTicket from '../ticket/Create';
 import DeleteStay from './Delete';
 
 function useSearchStays(stays) {
@@ -25,20 +26,15 @@ export default function StaysList (props) {
   const stays = props.stays;
   const {query, setQuery, filteredStays} = useSearchStays(stays);
 
-  const handleClick = (id) => {
-    props.getStayId(id);
-    props.onOpenModalDelete(true);
-  }
-
   if (filteredStays.length !== 0) {
     return (
       <div>
-        <button onClick={props.onOpenModalCreate} className="btn btn-primary mt-5 m-2">Nueva Estancia</button>
+        <button onClick={props.onOpenModalCreate} className="btn btn-primary mt-5 m-2">Registrar Entrada</button>
         <CreateStay
           onClose={props.onCloseModalCreate}
           isOpen={props.modalCreateIsOpen}
           onChange={props.onChange}
-          onSubmit={props.onCreateStay}
+          onSave={props.onSaveStay}
           vehicles={props.vehicles}
         />
         <div className="form-grup mt-3">
@@ -59,7 +55,6 @@ export default function StaysList (props) {
               <th scope="col">No.</th>
               <th scope="col">Vehiculo</th>
               <th scope="col">Entrada</th>
-              <th scope="col">De Alta</th>
               <th scope="col" colSpan="2" rowSpan="2">Acciones</th>
             </tr>
           </thead>
@@ -70,10 +65,16 @@ export default function StaysList (props) {
                   <th scope="row">{counter + 1}</th>
                   <td>{stay.vehiculo}</td>
                   <td>{stay.hora_entrada}</td>
-                  <td><button className="btn btn-secondary">No</button></td>
-                  <td><button className="btn btn-warning">Editar</button></td>
                   <td>
-                    <button onClick={() => handleClick(stay.id)} className="btn btn-danger">Eliminar</button>
+                    <button onClick={() => {props.getTicketData(stay.id); props.onOpenModalCreateTicket(true);}} className="btn btn-primary">Generar Ticket</button>
+                    <CreateTicket
+                      onClose={props.onCloseModalCreateTicket}
+                      isOpen={props.modalCreateTicketIsOpen}
+                      onCreate={props.onCreateTicket}
+                    />
+                  </td>
+                  <td>
+                    <button onClick={() => {props.getStayId(stay.id); props.onOpenModalDelete(true);}} className="btn btn-danger">Eliminar Registro</button>
                     <DeleteStay
                       onClose={props.onCloseModalDelete}
                       isOpen={props.modalDeleteIsOpen}
@@ -90,7 +91,7 @@ export default function StaysList (props) {
   } else {
     return (
       <div className="BadgesList">
-        <button onClick={props.onOpenModalCreate} className="btn btn-primary mt-5 m-2">Nueva Estancia</button>
+        <button onClick={props.onOpenModalCreate} className="btn btn-primary mt-5 m-2">Registrar Entrada</button>
         <div className="form-grup mt-3 mb-5">
           <label>Buscando...</label>
           <input

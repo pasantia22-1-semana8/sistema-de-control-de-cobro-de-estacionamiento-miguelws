@@ -30,8 +30,47 @@ const api = {
         body: JSON.stringify(stay)
       });
     },
+    update(token, stayId) {
+      return fetch(BASE_URL + `stays/list/${stayId}/`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Token ${token}`
+        }
+      });
+    },
     remove(token, stayId) {
       return fetch(BASE_URL + `stays/list/${stayId}/`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Token ${token}`
+        }
+      });
+    }
+  },
+  tickets: {
+    list(token) {
+      return fetch(BASE_URL + 'stays/tickets/', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Token ${token}`
+        }
+      });
+    },
+    create(token, ticket) {
+      return fetch(BASE_URL + 'stays/tickets/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Token ${token}`
+        },
+        body: JSON.stringify(ticket)
+      });
+    },
+    remove(token, ticketId) {
+      return fetch(BASE_URL + `stays/tickets/${ticketId}/`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -51,7 +90,7 @@ const api = {
       });
     },
     create(token, payment) {
-      return fetch(BASE_URL + 'stays/list/', {
+      return fetch(BASE_URL + 'stays/payments/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -62,26 +101,6 @@ const api = {
     },
     remove(token, paymentId) {
       return fetch(BASE_URL + `stays/payments/${paymentId}/`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Token ${token}`
-        }
-      });
-    }
-  },
-  tickets: {
-    list(token) {
-      return fetch(BASE_URL + 'stays/tickets/', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Token ${token}`
-        }
-      });
-    },
-    remove(token, ticketId) {
-      return fetch(BASE_URL + `stays/tickets/${ticketId}/`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',

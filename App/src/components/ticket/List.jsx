@@ -1,7 +1,7 @@
 import React from 'react';
 
 import '../styles/List.css';
-import CreateTicket from './Create';
+import CreatePayment from '../payment/Create';
 import DeleteTicket from './Delete';
 
 function useSearchTickets(tickets) {
@@ -11,7 +11,7 @@ function useSearchTickets(tickets) {
   React.useMemo(() => {
     try {
       const result = tickets.filter(ticket => {
-        return `${ticket.codigo} ${ticket.pago}`.toLowerCase().includes(query.toLowerCase());
+        return `${ticket.codigo} ${ticket.estancia}`.toLowerCase().includes(query.toLowerCase());
       })
       setfilteredTickets(result);
     } catch (error) {
@@ -25,22 +25,9 @@ export default function TicketsList (props) {
   const tickets = props.tickets;
   const {query, setQuery, filteredTickets} = useSearchTickets(tickets);
 
-  const handleClick = (id) => {
-    props.getTicketId(id);
-    props.onOpenModalDelete(true);
-  }
-
   if (filteredTickets.length !== 0) {
     return (
       <div>
-        <button onClick={props.onOpenModalCreate} className="btn btn-primary mt-5 m-2">Generar Ticket</button>
-        <CreateTicket
-          onClose={props.onCloseModalCreate}
-          isOpen={props.modalCreateIsOpen}
-          onChange={props.onChange}
-          onSubmit={props.onCreateTicket}
-          payments={props.payments}
-        />
         <div className="form-grup mt-3">
           <label>Buscar tickets por placa del vehiculo</label>
           <input
@@ -58,7 +45,7 @@ export default function TicketsList (props) {
             <tr>
               <th scope="col">No.</th>
               <th scope="col">Codigo</th>
-              <th scope="col">Informacion del pago</th>
+              <th scope="col">Informacion del registro</th>
               <th scope="col" colSpan="2" rowSpan="2">Acciones</th>
             </tr>
           </thead>
@@ -68,10 +55,17 @@ export default function TicketsList (props) {
                 <tr key={ticket.id}>
                   <th scope="row">{counter + 1}</th>
                   <td>{ticket.codigo}</td>
-                  <td>{ticket.pago}</td>
-                  <td><button className="btn btn-warning">Editar</button></td>
+                  <td>{ticket.estancia}</td>
                   <td>
-                    <button onClick={() => handleClick(ticket.id)} className="btn btn-danger">Eliminar</button>
+                    <button onClick={() => {props.getPaymentData(ticket.id); props.getStayId(ticket.estancia_id); props.getTicketId(ticket.id); props.onOpenModalCreatePayment(true);}} className="btn btn-primary">Registrar Salida</button>
+                    <CreatePayment
+                      onClose={props.onCloseModalCreatePayment}
+                      isOpen={props.modalCreatePaymentIsOpen}
+                      onCreate={props.onCreatePayment}
+                    />
+                  </td>
+                  <td>
+                    <button onClick={() => {props.getTicketId(ticket.id); props.onOpenModalDelete(true);}} className="btn btn-danger">Eliminar Registro</button>
                     <DeleteTicket
                       onClose={props.onCloseModalDelete}
                       isOpen={props.modalDeleteIsOpen}
@@ -88,7 +82,6 @@ export default function TicketsList (props) {
   } else {
     return (
       <div className="BadgesList">
-        <button onClick={props.onOpenModalCreate} className="btn btn-primary mt-5 m-2">Generar Ticket</button>
         <div className="form-grup mt-3 mb-5">
           <label>Buscando...</label>
           <input

@@ -25,11 +25,6 @@ export default function VehiclesList (props) {
   const vehicles = props.vehicles;
   const {query, setQuery, filteredVehicles} = useSearchVehicles(vehicles);
 
-  const handleClick = (id) => {
-    props.getVehicleId(id);
-    props.onOpenModalDelete(true);
-  }
-
   if (filteredVehicles.length !== 0) {
     return (
       <div>
@@ -71,9 +66,9 @@ export default function VehiclesList (props) {
                   <td>{vehicle.placa}</td>
                   <td>{vehicle.tarifa}</td>
                   <td>{vehicle.descripcion}</td>
-                  <td><button className="btn btn-warning">Editar</button></td>
+                  <td><button className="btn btn-warning">Editar Registro</button></td>
                   <td>
-                    <button onClick={() => handleClick(vehicle.id)} className="btn btn-danger">Eliminar</button>
+                    <button onClick={() => {props.getVehicleId(vehicle.id); props.onOpenModalDelete(true);}} className="btn btn-danger">Eliminar Registro</button>
                     <DeleteVehicle
                       onClose={props.onCloseModalDelete}
                       isOpen={props.modalDeleteIsOpen}

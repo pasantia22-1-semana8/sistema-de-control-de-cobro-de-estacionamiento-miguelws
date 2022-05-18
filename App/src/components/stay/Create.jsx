@@ -13,13 +13,13 @@ export default function CreateStay(props) {
         <div className="m-5">
           <select className="form-select" onChange={props.onChange}>
           <option >Placa de vehiculos</option>
-            {props.vehicles.map(vehicle => {
+          {props.vehicles && props.vehicles.map(vehicle => {
               return <option value={vehicle.id} >{vehicle.placa}</option>
             })}
           </select>
         </div>
         <div>
-          <button onClick={props.onSubmit} className="btn btn-success">Guardar</button>
+          <button onClick={props.onSave} className="btn btn-success">Guardar</button>
         </div>
       </div>
     </ModalCreate>

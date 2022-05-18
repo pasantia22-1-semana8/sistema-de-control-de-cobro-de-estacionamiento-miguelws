@@ -10,14 +10,19 @@ export default class Payment extends Component {
   state = {
     loading: true,
     error: null,
-    modalCreateIsOpen: false,
-    modalDeleteIsOpen: false,
     staysList: [],
-    selectedVehicle: [],
+    modalCreateIsOpen: false,
     newStay: {
       vehiculo: undefined
     },
-    stayId: undefined
+    selectedVehicle: [],
+    modalDeleteIsOpen: false,
+    stayId: undefined,
+    modalCreateTicketIsOpen: false,
+    newTicket: {
+      codigo: undefined,
+      estancia: undefined
+    }
   }
 
   componentDidMount() {
@@ -100,7 +105,18 @@ export default class Payment extends Component {
     }
   }
 
+  handleGetStayId = (id) => {
+    this.setState({
+      stayId: id
+    });
+  }
+
   handleRemoveStay = async (e) => {
+    this.setState({
+      loading: true,
+      error: null
+    });
+
     try {
       await api.stays.remove(this.props.myToken, this.state.stayId).then(data => data.json());
       this.setState({
@@ -115,18 +131,49 @@ export default class Payment extends Component {
     }
   }
 
-  handleGetStayId = (id) => {
-    this.setState({
-      stayId: id
-    });
-  }
-
   handleCloseModalDelete = e => {
     this.setState({ modalDeleteIsOpen: false });
   }
 
   handleOpenModalDelete = e => {
     this.setState({ modalDeleteIsOpen: true });
+  }
+
+  handleSendTicket = async (e) => {
+    this.setState({
+      loading: true,
+      error: null
+    });
+
+    try {
+      await api.tickets.create(this.props.myToken, this.state.newTicket).then(data => data.json());
+      this.setState({
+        loading: false,
+        modalCreateTicketIsOpen: false
+      });
+    } catch (error) {
+      this.setState({
+        loading: false,
+        error: error
+      });
+    }
+  }
+
+  handleGetTicketData = (id) => {
+    this.setState({
+      newTicket: {
+        codigo: Math.ceil(Math.random() * 10000) + '-' + Math.ceil(Math.random() * 10000) + '-' + Math.ceil(Math.random() * 10000),
+        estancia: id
+      }
+    });
+  }
+
+  handleCloseModalCreateTicket = e => {
+    this.setState({ modalCreateTicketIsOpen: false });
+  }
+
+  handleOpenModalCreateTicket = e => {
+    this.setState({ modalCreateTicketIsOpen: true });
   }
 
   render() {
@@ -146,7 +193,7 @@ export default class Payment extends Component {
               onOpenModalCreate={this.handleOpenModalCreate}
               onCloseModalCreate={this.handleCloseModalCreate}
               modalCreateIsOpen={this.state.modalCreateIsOpen}
-              onCreateStay={this.handleSendStay}
+              onSaveStay={this.handleSendStay}
               onChange={this.handleChange}
               vehicles={this.state.selectedVehicle}
 
@@ -155,6 +202,12 @@ export default class Payment extends Component {
               modalDeleteIsOpen={this.state.modalDeleteIsOpen}
               getStayId={this.handleGetStayId}
               onDeleteStay={this.handleRemoveStay}
+
+              onOpenModalCreateTicket={this.handleOpenModalCreateTicket}
+              onCloseModalCreateTicket={this.handleCloseModalCreateTicket}
+              modalCreateTicketIsOpen={this.state.modalCreateTicketIsOpen}
+              getTicketData={this.handleGetTicketData}
+              onCreateTicket={this.handleSendTicket}
             />
           </div>
         </div>

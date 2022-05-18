@@ -1,7 +1,6 @@
 import React from 'react';
 
 import '../styles/List.css';
-import CreatePayment from './Create';
 import DeletePayment from './Delete';
 
 function useSearchPayments(payments) {
@@ -11,7 +10,7 @@ function useSearchPayments(payments) {
   React.useMemo(() => {
     try {
       const result = payments.filter(payment => {
-        return `${payment.estancia}`.toLowerCase().includes(query.toLowerCase());
+        return `${payment.fecha} ${payment.ticket}`.toLowerCase().includes(query.toLowerCase());
       })
       setfilteredPayments(result);
     } catch (error) {
@@ -25,22 +24,9 @@ export default function PaymentsList (props) {
   const payments = props.payments;
   const {query, setQuery, filteredPayments} = useSearchPayments(payments);
   
-  const handleClick = (id) => {
-    props.getPaymentId(id);
-    props.onOpenModalDelete(true);
-  }
-
   if (filteredPayments.length !== 0) {
     return (
       <div>
-        <button onClick={props.onOpenModalCreate} className="btn btn-primary mt-5 m-2">Registrar Pago</button>
-        <CreatePayment
-          onClose={props.onCloseModalCreate}
-          isOpen={props.modalCreateIsOpen}
-          onChange={props.onChange}
-          onSubmit={props.onCreatePayment}
-          stays={props.stays}
-        />
         <div className="form-grup mt-3">
           <label>Buscar pagos por placa del vehiculo</label>
           <input
@@ -58,7 +44,7 @@ export default function PaymentsList (props) {
             <tr>
               <th scope="col">No.</th>
               <th scope="col">Fecha</th>
-              <th scope="col">Vehiculo</th>
+              <th scope="col">Informacion del ticket</th>
               <th scope="col">Importe total</th>
               <th scope="col" colSpan="2" rowSpan="2">Acciones</th>
             </tr>
@@ -69,11 +55,10 @@ export default function PaymentsList (props) {
                 <tr key={payment.id}>
                   <th scope="row">{counter + 1}</th>
                   <td>{payment.fecha}</td>
-                  <td>{payment.estancia}</td>
-                  <td>{payment.importe_total}</td>
-                  <td><button className="btn btn-warning">Editar</button></td>
+                  <td>{payment.ticket}</td>
+                  <td>Q. {payment.importe_total}</td>
                   <td>
-                    <button onClick={() => handleClick(payment.id)} className="btn btn-danger">Eliminar</button>
+                    <button onClick={() => {props.getPaymentId(payment.id); props.onOpenModalDelete(true);}} className="btn btn-danger">Eliminar Registro</button>
                     <DeletePayment
                       onClose={props.onCloseModalDelete}
                       isOpen={props.modalDeleteIsOpen}
@@ -90,7 +75,6 @@ export default function PaymentsList (props) {
   } else {
     return (
       <div className="BadgesList">
-        <button onClick={props.onOpenModalCreate} className="btn btn-primary mt-5 m-2">Registrar Pago</button>
         <div className="form-grup mt-3 mb-5">
           <label>Buscando...</label>
           <input
