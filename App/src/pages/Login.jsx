@@ -16,9 +16,9 @@ export default class Login extends React.Component {
   };
 
   handleChange = e => {
-    const cred = this.state.credentials;
-    cred[e.target.name] = e.target.value;
-    this.setState({ credentials: cred });
+    const data = this.state.credentials;
+    data[e.target.name] = e.target.value;
+    this.setState({ credentials: data });
   };
 
   render() {

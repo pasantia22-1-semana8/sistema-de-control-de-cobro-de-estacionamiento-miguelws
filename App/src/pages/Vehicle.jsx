@@ -72,12 +72,10 @@ export default class Vehicle extends Component {
   }
 
   handleChange = e => {
-    this.setState({
-      newVehicle: {
-        [e.target.name]: e.target.value
-      }
-    });
-  }
+    const data = this.state.newVehicle;
+    data[e.target.name] = e.target.value;
+    this.setState({ newVehicle: data });
+  };
 
   handleCloseModalCreate = e => {
     this.setState({ modalCreateIsOpen: false });

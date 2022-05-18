@@ -18,7 +18,7 @@ export default function NavigationBar (props) {
         <Link className="navbar-brand" to=""></Link>
         <Link className="navbar-brand" to="">miguelv</Link>
         <div className="container-fluid">
-          <img className="Navbar__brand-logo" src="https://www.crearlogogratisonline.com/images/crearlogogratis_1024x1024_01.png" alt="logo"/>
+        <img className="Navbar__brand-logo" src="https://i.pinimg.com/originals/f0/dd/ec/f0ddec76cda8ee2756e663924856f81e.png" alt="logo"/>
           <div className="navbar-header">
             <Link id='estilos' className="navbar-brand" to="/stay">ESTANCIAS</Link>
             <Link id='estilos' className="navbar-brand" to="/ticket">TICKETS</Link>

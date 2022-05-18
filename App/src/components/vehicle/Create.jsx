@@ -12,7 +12,7 @@ export default function CreateVehicle(props) {
           <input className="form-control mb-3" onChange={props.onChange} type="text" name="placa" placeholder="Placa" required={true} />
           <select className="form-select" onChange={props.onChange} name="tarifa">
             <option >Tarifas</option>
-            {props.fees.map(fee => {
+            {props.fees && props.fees.map(fee => {
               return <option value={fee.id}>{fee.importe} {fee.estado_residencia} {fee.tipo_vehiculo}</option>
             })}
           </select>
